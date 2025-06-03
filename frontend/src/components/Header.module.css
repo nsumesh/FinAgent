@@ -1,0 +1,57 @@
+.header {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem 0;
+    background-color: white;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    width: 100%;
+    box-sizing: border-box;
+     background: #0f0f0f;
+  }
+  
+  .search {
+    flex: 1;
+    min-width: 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    border: 1px solid #d1d5db;
+    border-radius: 9999px;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    background: #dedfde;
+  }
+  
+  .profile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .avatar {
+    width: 36px;
+    height: 36px;
+    background: #2563eb;
+    color: white;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.875rem;
+  }
+  
+  .email {
+    font-size: 0.75rem;
+  }
+  
+  .name {
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+  
+  .subtext {
+    color: #6b7280;
+  }
+  

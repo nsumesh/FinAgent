@@ -1,0 +1,75 @@
+.card {
+    background: white;
+    border-radius: 1.25rem;
+    padding: 1.25rem;
+    min-width: 200px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+  
+  .logo {
+    background: black;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+  }
+  
+  .change {
+    font-weight: 500;
+  }
+  
+  .green {
+    color: #16a34a;
+  }
+  
+  .red {
+    color: #dc2626;
+  }
+  
+  .chart {
+    height: 40px;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+  }
+  
+  .chartUp {
+    background: linear-gradient(to top, #d1fae5, transparent);
+  }
+  
+  .chartDown {
+    background: linear-gradient(to top, #fecaca, transparent);
+  }
+  
+  .label {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+  
+  .value {
+    font-size: 1.25rem;
+    font-weight: bold;
+  }
+  
+  .removeButton {
+    margin-top: 0.5rem;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.25rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+  }
+  .removeButton:hover {
+    background: #b91c1c;
+  }
+  
