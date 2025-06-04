@@ -1,75 +1,51 @@
 .card {
-    background: white;
-    border-radius: 1.25rem;
-    padding: 1.25rem;
-    min-width: 200px;
-    flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  
-  .header {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-  }
-  
-  .logo {
-    background: black;
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-  }
-  
-  .change {
-    font-weight: 500;
-  }
-  
-  .green {
-    color: #16a34a;
-  }
-  
-  .red {
-    color: #dc2626;
-  }
-  
-  .chart {
-    height: 40px;
-    margin-bottom: 1rem;
-    border-radius: 8px;
-  }
-  
-  .chartUp {
-    background: linear-gradient(to top, #d1fae5, transparent);
-  }
-  
-  .chartDown {
-    background: linear-gradient(to top, #fecaca, transparent);
-  }
-  
-  .label {
-    font-size: 0.75rem;
-    color: #6b7280;
-  }
-  
-  .value {
-    font-size: 1.25rem;
-    font-weight: bold;
-  }
-  
-  .removeButton {
-    margin-top: 0.5rem;
-    background: #ef4444;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.25rem 0.75rem;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background 0.2s;
-  }
-  .removeButton:hover {
-    background: #b91c1c;
-  }
-  
+  background-color: #e5efff;
+  border-radius: 10px;
+  padding: 1.5rem;
+  width: 260px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 1rem;
+}
+
+.companyName {
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.ticker {
+  font-size: 1rem;
+  color: #333;
+  font-weight: 400;
+}
+
+.detail {
+  font-size: 0.95rem;
+  color: #222;
+}
+
+.deleteButton {
+  margin-top: 1rem;
+  align-self: flex-start;
+  background-color: #fef2f2;
+  border: 1px solid #ef4444;
+  color: #b91c1c;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deleteButton:hover {
+  background-color: #fecaca;
+  border-color: #dc2626;
+}

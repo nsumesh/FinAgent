@@ -1,23 +1,82 @@
 import React, { useRef, useState, useEffect } from 'react';
 import PortfolioCard from './PortfolioCard';
+import AddStockModal from './AddStockModal';
 import styles from './PortfolioCarousel.module.css';
+import { supabase } from '../lib/supabaseClient';
+import { useSession } from '@supabase/auth-helpers-react';
 
 export default function PortfolioCarousel() {
   const containerRef = useRef(null);
   const [showArrow, setShowArrow] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [stocks, setStocks] = useState([
-    { name: 'Apple, Inc', ticker: 'AAPL', change: 0.66, value: 15215.7, trend: 'up' },
-  ]);
+  const [stocks, setStocks] = useState([]);
+
+  const session = useSession();
+  console.log("🔍 Full session object:", session);
 
   useEffect(() => {
-    const el = containerRef.current;
-    setShowArrow(el && el.scrollWidth > el.clientWidth);
-  }, [stocks]);
+    const fetchStocks = async () => {
+      if (!session?.user) return;
 
-  const handleAddStock = (stock) => {
-    setStocks((prev) => [...prev, stock]);
-    setShowModal(false);
+      const { data, error } = await supabase
+        .from('portfolios')
+        .select('*')
+        .eq('user_id', session.user.id);
+
+      if (error) {
+        console.error('Error fetching stocks:', error);
+      } else {
+        setStocks(data);
+      }
+
+      const el = containerRef.current;
+      setShowArrow(el && el.scrollWidth > el.clientWidth);
+    };
+
+    fetchStocks();
+  }, [session]);
+
+  const handleAddStock = async (stock) => {
+    const user = session?.user;
+    if (!user) return;
+  
+    const payload = { ...stock, user_id: user.id };
+    console.log("🧾 Payload being inserted:", payload);
+  
+    try {
+      const { data, error } = await supabase
+        .from('portfolios')
+        .insert([payload]).select();
+  
+      if (error) {
+        console.error("❌ Supabase insert error:", error);
+        alert('Error adding stock: ' + error.message);
+        return;
+      }
+  
+      console.log("✅ Stock added to Supabase:", data);
+      setStocks((prev) => [...prev, ...data]);
+      setShowModal(false);
+    } catch (err) {
+      console.error("🔥 Unexpected exception during insert:", err);
+      alert("Unexpected error occurred: " + err.message);
+    }
+  };
+    
+
+  
+  const handleDeleteStock = async (id) => {
+    const { error } = await supabase
+      .from('portfolios')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Failed to delete stock:', error);
+      return;
+    }
+
+    setStocks((prev) => prev.filter((stock) => stock.id !== id));
   };
 
   return (
@@ -30,65 +89,24 @@ export default function PortfolioCarousel() {
       </div>
 
       <div className={styles.scrollContainer} ref={containerRef}>
-        {stocks.map((stock, i) => (
+        {stocks.map((stock) => (
           <PortfolioCard
-            key={i}
+            key={stock.id}
             {...stock}
-            onRemove={() => setStocks(stocks => stocks.filter((_, idx) => idx !== i))}
+            onDelete={() => handleDeleteStock(stock.id)}
           />
         ))}
       </div>
 
       {showArrow && <div className={styles.rightArrow}>→</div>}
 
-      {showModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <h3>Add Stock</h3>
-            <StockForm onSubmit={handleAddStock} onCancel={() => setShowModal(false)} />
-          </div>
-        </div>
+      {showModal && session?.user && (
+      <AddStockModal
+        onAdd={handleAddStock}
+        onClose={() => setShowModal(false)}
+        userId={session.user.id}
+      />
       )}
-    </div>
-  );
-}
-
-function StockForm({ onSubmit, onCancel }) {
-  const [name, setName] = useState('');
-  const [ticker, setTicker] = useState('');
-  const [change, setChange] = useState('');
-  const [value, setValue] = useState('');
-
-  const handleSubmit = () => {
-    const parsedChange = parseFloat(change);
-    const parsedValue = parseFloat(value);
-    if (!name || !ticker || isNaN(parsedChange) || isNaN(parsedValue)) {
-      alert('Please enter valid stock details.');
-      return;
-    }
-
-    const trend = parsedChange >= 0 ? 'up' : 'down';
-    onSubmit({ name, ticker, change: parsedChange, value: parsedValue, trend });
-  };
-
-  return (
-    <div>
-      <label>Company Name</label>
-      <input value={name} onChange={(e) => setName(e.target.value)} />
-
-      <label>Ticker</label>
-      <input value={ticker} onChange={(e) => setTicker(e.target.value)} />
-
-      <label>Change %</label>
-      <input value={change} onChange={(e) => setChange(e.target.value)} type="number" />
-
-      <label>Value</label>
-      <input value={value} onChange={(e) => setValue(e.target.value)} type="number" />
-
-      <div className={styles.modalButtons}>
-        <button onClick={onCancel}>Cancel</button>
-        <button onClick={handleSubmit}>Add</button>
-      </div>
-    </div>
+</div>
   );
 }

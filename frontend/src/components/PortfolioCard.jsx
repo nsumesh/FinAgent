@@ -1,21 +1,28 @@
+// PortfolioCard.jsx
 import React from 'react';
 import styles from './PortfolioCard.module.css';
 
-export default function PortfolioCard({ name, ticker, change, value, trend, onRemove }) {
+export default function PortfolioCard({ company_name, ticker, value, quantity, bought_at, onDelete }) {
   return (
     <div className={styles.card}>
       <div className={styles.header}>
-        <span className={styles.logo}>🍎 {name}</span>
-        <span className={`${styles.change} ${change >= 0 ? styles.green : styles.red}`}>
-          {ticker} {change >= 0 ? '+' : ''}{change}%
-        </span>
+        <div className={styles.companyName}>{company_name}</div>
+        <div className={styles.ticker}>{ticker}</div>
       </div>
-      <div className={`${styles.chart} ${trend === 'up' ? styles.chartUp : styles.chartDown}`}></div>
-      <div className={styles.label}>Portfolio</div>
-      <div className={styles.value}>{value.toLocaleString()}</div>
-      {onRemove && (
-        <button className={styles.removeButton} onClick={onRemove}>Remove</button>
-      )}
+
+      <div className={styles.detail}>
+        <strong>Quantity:</strong> {quantity}
+      </div>
+
+      <div className={styles.detail}>
+        <span>Price bought at:</span> $ {value}
+      </div>
+
+      <div className={styles.detail}>
+        <span>Date bought on:</span> {new Date(bought_at).toLocaleDateString()}
+      </div>
+
+      <button className={styles.deleteButton} onClick={onDelete}>Delete</button>
     </div>
   );
 }

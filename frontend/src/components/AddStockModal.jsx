@@ -1,13 +1,15 @@
-// src/components/AddStockModal.jsx
 import React, { useState } from 'react';
 import styles from './AddStockModal.module.css';
+console.log('AddStockModal rendered');
 
-export default function AddStockModal({ onAdd, onClose }) {
+export default function AddStockModal({ onAdd, onClose, userId }) {
+  console.log("🔄 AddStockModal rendered with userId:", userId);
   const [form, setForm] = useState({
-    name: '',
+    company_name: '',
     ticker: '',
-    change: '',
-    value: ''
+    value: '',
+    quantity: '',
+    bought_at: ''
   });
 
   const handleChange = (e) => {
@@ -16,21 +18,30 @@ export default function AddStockModal({ onAdd, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const { name, ticker, change, value } = form;
-    if (!name || !ticker || isNaN(change) || isNaN(value)) {
-      alert('Please enter valid inputs');
+    console.log("🚀 Submitting form...");
+    console.log('🛂 userId inside handleSubmit:', userId);
+    const { company_name, ticker, quantity, value, bought_at } = form;
+  
+    if (!company_name || !ticker || isNaN(value) || isNaN(quantity) || !bought_at) {
+      alert('Please fill all fields correctly');
       return;
     }
-
-    onAdd({
-      name,
+  
+    const stockData = {
+      company_name,
       ticker,
-      change: parseFloat(change),
+      quantity: parseFloat(quantity),
       value: parseFloat(value),
-      trend: parseFloat(change) >= 0 ? 'up' : 'down'
-    });
+      bought_at,
+      user_id: userId,
+    };
+  
+    console.log("✅ Validated form data:", stockData);
+  
+    onAdd(stockData);
     onClose();
   };
+  
 
   return (
     <div className={styles.modalOverlay}>
@@ -40,55 +51,56 @@ export default function AddStockModal({ onAdd, onClose }) {
           <label className={styles.modalLabel}>
             Company Name
             <input
-              className={styles.modalInput}
-              name="name"
+              name="company_name"
               type="text"
-              value={form.name}
+              value={form.company_name}
               onChange={handleChange}
-              placeholder="Apple, Inc"
               required
             />
           </label>
           <label className={styles.modalLabel}>
             Ticker
             <input
-              className={styles.modalInput}
               name="ticker"
               type="text"
               value={form.ticker}
               onChange={handleChange}
-              placeholder="AAPL"
-              required
-            />
-          </label>
-          <label className={styles.modalLabel}>
-            Change %
-            <input
-              className={styles.modalInput}
-              name="change"
-              type="number"
-              value={form.change}
-              onChange={handleChange}
-              placeholder="0.66"
-              step="0.01"
               required
             />
           </label>
           <label className={styles.modalLabel}>
             Value
             <input
-              className={styles.modalInput}
               name="value"
               type="number"
               value={form.value}
               onChange={handleChange}
-              placeholder="15215.7"
+              required
+            />
+          </label>
+          <label className={styles.modalLabel}>
+            Quantity
+            <input
+              name="quantity"
+              type="number"
+              value={form.quantity}
+              onChange={handleChange}
+              required
+            />
+          </label>
+          <label className={styles.modalLabel}>
+            Bought At
+            <input
+              name="bought_at"
+              type="date"
+              value={form.bought_at}
+              onChange={handleChange}
               required
             />
           </label>
           <div className={styles.modalActions}>
-            <button type="button" className={styles.modalActionsCancel} onClick={onClose}>Cancel</button>
-            <button type="submit" className={styles.modalActionsSubmit}>Add</button>
+            <button type="button" onClick={onClose}>Cancel</button>
+            <button type="submit">Add</button>
           </div>
         </form>
       </div>
