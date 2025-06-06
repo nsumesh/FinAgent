@@ -12,7 +12,6 @@ export default function PortfolioCarousel() {
   const [stocks, setStocks] = useState([]);
 
   const session = useSession();
-  console.log("🔍 Full session object:", session);
 
   useEffect(() => {
     const fetchStocks = async () => {
@@ -40,13 +39,24 @@ export default function PortfolioCarousel() {
     const user = session?.user;
     if (!user) return;
   
-    const payload = { ...stock, user_id: user.id };
-    console.log("🧾 Payload being inserted:", payload);
-  
     try {
+      // Fetch current price
+      const priceRes = await fetch(`http://localhost:5001/api/current-price?ticker=${stock.ticker}`);
+      const priceData = await priceRes.json();
+      const current_price = priceData?.current_price || 0;
+      console.log('Polygon API raw response:', priceData);
+      console.log("🧾 Inserting with current_price:", current_price);
+  
+      const payload = {
+        ...stock,
+        user_id: user.id,
+        current_price, // insert it!
+      };
+  
       const { data, error } = await supabase
         .from('portfolios')
-        .insert([payload]).select();
+        .insert([payload])
+        .select();
   
       if (error) {
         console.error("❌ Supabase insert error:", error);
@@ -62,14 +72,10 @@ export default function PortfolioCarousel() {
       alert("Unexpected error occurred: " + err.message);
     }
   };
-    
-
   
+
   const handleDeleteStock = async (id) => {
-    const { error } = await supabase
-      .from('portfolios')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.from('portfolios').delete().eq('id', id);
 
     if (error) {
       console.error('Failed to delete stock:', error);
@@ -93,6 +99,7 @@ export default function PortfolioCarousel() {
           <PortfolioCard
             key={stock.id}
             {...stock}
+            currentPrice={stock.current_price} // use current_price from DB
             onDelete={() => handleDeleteStock(stock.id)}
           />
         ))}
@@ -101,12 +108,12 @@ export default function PortfolioCarousel() {
       {showArrow && <div className={styles.rightArrow}>→</div>}
 
       {showModal && session?.user && (
-      <AddStockModal
-        onAdd={handleAddStock}
-        onClose={() => setShowModal(false)}
-        userId={session.user.id}
-      />
+        <AddStockModal
+          onAdd={handleAddStock}
+          onClose={() => setShowModal(false)}
+          userId={session.user.id}
+        />
       )}
-</div>
+    </div>
   );
 }

@@ -2,12 +2,19 @@ import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabaseClient';
 
 import Sidebar from './components/Sidebar';
-import Header from './components/Header';
 import PortfolioCarousel from './components/PortfolioCarousel';
 import Auth from './pages/Auth';
 
+import { FaBars } from 'react-icons/fa';
+import './App.css';
+
 function App() {
   const [user, setUser] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -26,15 +33,31 @@ function App() {
   }
 
   return (
-    <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column' }}>
-      <Header />
-      <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
-        <Sidebar />
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', width: '100%' }}>
-          <div style={{ flex: 1, width: '100%' }}>
-            <div style={{ width: '100%', height: '100%' }}>
-              <PortfolioCarousel user={user} />
-            </div>
+    <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
+      <Sidebar isSidebarOpen={isSidebarOpen} />
+
+      {/* Floating Sidebar toggle button */}
+      <button
+        className="floatingSidebarButton"
+        onClick={toggleSidebar}
+      >
+        <FaBars />
+      </button>
+
+      <div
+        style={{
+          flex: 1,
+          minWidth: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          width: '100%',
+          transition: 'margin-left 0.3s ease-in-out',
+          marginLeft: isSidebarOpen ? '200px' : '0px',
+        }}
+      >
+        <div style={{ flex: 1, width: '100%' }}>
+          <div style={{ width: '100%', height: '100%' }}>
+            <PortfolioCarousel user={user} />
           </div>
         </div>
       </div>

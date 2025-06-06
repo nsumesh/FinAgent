@@ -1,28 +1,26 @@
-import React from 'react';
 import styles from './Sidebar.module.css';
 
-export default function Sidebar() {
+export default function Sidebar({ isSidebarOpen }) {
   return (
-    <div className={styles.sidebar}>
-      <div className={styles.section}>
-        <div className={styles.sectionTitle}>AI WATCHLIST</div>
-        
-      </div>
+    <div
+      className={`${styles.sidebar} ${
+        isSidebarOpen ? styles.sidebarOpen : styles.sidebarClosed
+      }`}
+    >
+      <div className={styles.logo}>Fin Agent</div>
 
       <div className={styles.section}>
-        <div className={styles.sectionTitle}>MAIN MENU</div>
-        <ul className={styles.nav}>
+        <h3>MAIN MENU</h3>
+        <ul>
           <li>Home</li>
           <li>Exchange</li>
           <li>Stock & Fund</li>
-          <li>Wallets</li>
-          <li>Crypto</li>
         </ul>
       </div>
 
       <div className={styles.section}>
-        <div className={styles.sectionTitle}>SUPPORT</div>
-        <ul className={styles.nav}>
+        <h3>SUPPORT</h3>
+        <ul>
           <li>Community</li>
           <li>Help & Support</li>
         </ul>

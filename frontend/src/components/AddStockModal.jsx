@@ -8,7 +8,8 @@ export default function AddStockModal({ onAdd, onClose, userId }) {
     ticker: '',
     value: '',
     quantity: '',
-    bought_at: ''
+    bought_at: '',
+    current_price : ''
   });
 
   const [suggestions, setSuggestions] = useState([]);
@@ -16,35 +17,45 @@ export default function AddStockModal({ onAdd, onClose, userId }) {
 
   // Debounced fetch to backend
   const fetchCompanySuggestions = debounce(async (query) => {
-    if (!query) {
+    if (!query || query.length < 4) {
       setSuggestions([]);
       return;
     }
     try {
-      const res = await fetch(`http://localhost:5000/api/search-tickers?query=${query}`);
+      const res = await fetch(`http://localhost:5001/api/search-tickers?query=${query}`);
       const data = await res.json();
-      setSuggestions(data.results || []);
+      setSuggestions(data || []);
       setIsDropdownOpen(true);
     } catch (error) {
       console.error('Error fetching suggestions:', error);
     }
-  }, 300);
-
+  }, 2000);  // 1 second debounce
+  
   useEffect(() => {
     fetchCompanySuggestions(form.company_name);
     return fetchCompanySuggestions.cancel;
   }, [form.company_name]);
 
-  const handleSuggestionClick = (company) => {
-    setForm({
-      ...form,
-      company_name: company.name,
-      ticker: company.ticker
-    });
-    setSuggestions([]);
-    setIsDropdownOpen(false);
+  const handleSuggestionClick = async (company) => {
+    // Fetch current price for the selected ticker:
+    try {
+      const res = await fetch(`http://localhost:5001/api/current-price?ticker=${company.ticker}`);
+      const data = await res.json();
+  
+      setForm({
+        ...form,
+        company_name: company.name,
+        ticker: company.ticker,
+        current_price: data.price || 0 // add this field in form state!
+      });
+  
+      setSuggestions([]);
+      setIsDropdownOpen(false);
+    } catch (error) {
+      console.error('Error fetching current price:', error);
+    }
   };
-
+  
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -63,6 +74,7 @@ export default function AddStockModal({ onAdd, onClose, userId }) {
       value: parseFloat(value),
       bought_at,
       user_id: userId,
+      current_price : form.current_price
     };
     onAdd(stockData);
     onClose();
