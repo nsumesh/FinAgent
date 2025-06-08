@@ -4,19 +4,21 @@ const cors = require('cors');
 const axios = require('axios');
 require('dotenv').config();
 
+const { runPortfolioAgent } = require('./agent/portfolioAgent');
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const POLYGON_API_KEY = process.env.POLYGON_API_KEY;
-console.log("🔐 Loaded POLYGON_API_KEY");
+console.log('🔐 Loaded POLYGON_API_KEY');
 
-// Health check route (shows that server is running)
+// Health check route
 app.get('/', (req, res) => {
   res.send('✅ Backend is running!');
 });
 
-// Search route
+// Search tickers route
 app.get('/api/search-tickers', async (req, res) => {
   const query = req.query.query;
   if (!query) {
@@ -41,7 +43,7 @@ app.get('/api/search-tickers', async (req, res) => {
       }
     );
 
-    const results = polygonRes.data.results?.slice(0, 5) || []; // Limit to 5 suggestions
+    const results = polygonRes.data.results?.slice(0, 5) || [];
     const simplified = results.map((item) => ({
       name: item.name,
       ticker: item.ticker,
@@ -55,6 +57,7 @@ app.get('/api/search-tickers', async (req, res) => {
   }
 });
 
+// Current price route
 const dayjs = require('dayjs');
 
 app.get('/api/current-price', async (req, res) => {
@@ -63,7 +66,6 @@ app.get('/api/current-price', async (req, res) => {
 
   if (!ticker) return res.status(400).json({ error: 'Ticker is required' });
 
-  // Default date → yesterday
   const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
   const dateToUse = dateParam || yesterday;
 
@@ -90,18 +92,34 @@ app.get('/api/current-price', async (req, res) => {
       current_price: price,
       source: 'historical close',
     });
-
   } catch (err) {
     console.error('Polygon API error:', err.response?.data || err.message);
     res.status(500).json({ error: 'Failed to fetch current price' });
   }
 });
 
+// Chat agent route 🚀
+app.post('/api/chat-agent', async (req, res) => {
+  const { user_id, message } = req.body;
+  if (!user_id || !message) {
+    return res.status(400).json({ error: 'user_id and message are required' });
+  }
 
+  try {
+    console.log(`Running agent for user: ${user_id}, message: "${message}"`);
+
+    const reply = await runPortfolioAgent(user_id, message);
+
+    res.json({ reply });
+  } catch (err) {
+    console.error('Agent error:', err);
+    res.status(500).json({ error: 'Agent failed to respond' });
+  }
+});
 
 const PORT = process.env.PORT || 5001;
-console.log("🚀 Starting server...");
+console.log('Starting server...');
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server listening at http://localhost:${PORT}`);
+  console.log(`Server listening at http://localhost:${PORT}`);
 });
