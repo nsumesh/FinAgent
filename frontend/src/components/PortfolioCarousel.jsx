@@ -27,7 +27,10 @@ export default function PortfolioCarousel() {
       } else {
         setStocks(data);
       }
-
+      // const total = computeTotalValue(data);
+      // const plPerStock = computePortfolioPL(data);
+      // console.log('Total Value:', total);
+      // console.log('Portfolio P/L:', plPerStock);
       const el = containerRef.current;
       setShowArrow(el && el.scrollWidth > el.clientWidth);
     };
