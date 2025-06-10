@@ -11,14 +11,11 @@ app.use(cors());
 app.use(express.json());
 
 const POLYGON_API_KEY = process.env.POLYGON_API_KEY;
-console.log('🔐 Loaded POLYGON_API_KEY');
 
-// Health check route
 app.get('/', (req, res) => {
-  res.send('✅ Backend is running!');
+  res.send('Backend is running!');
 });
 
-// Search tickers route
 app.get('/api/search-tickers', async (req, res) => {
   const query = req.query.query;
   if (!query) {
@@ -26,7 +23,7 @@ app.get('/api/search-tickers', async (req, res) => {
   }
 
   try {
-    console.log(`🔍 Searching tickers for query: "${query}"`);
+    console.log(`Searching tickers for query: "${query}"`);
 
     const polygonRes = await axios.get(
       'https://api.polygon.io/v3/reference/tickers',
@@ -49,15 +46,14 @@ app.get('/api/search-tickers', async (req, res) => {
       ticker: item.ticker,
     }));
 
-    console.log(`✅ Returning ${simplified.length} results`);
+    console.log(` Returning ${simplified.length} results`);
     res.json(simplified);
   } catch (err) {
-    console.error('❌ Polygon API error:', err.message);
+    console.error('Polygon API error:', err.message);
     res.status(500).json({ error: 'Failed to fetch ticker data' });
   }
 });
 
-// Current price route
 const dayjs = require('dayjs');
 
 app.get('/api/current-price', async (req, res) => {
@@ -69,7 +65,7 @@ app.get('/api/current-price', async (req, res) => {
   const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
   const dateToUse = dateParam || yesterday;
 
-  console.log(`🔍 Fetching historical close price for: ${ticker} on ${dateToUse}`);
+  console.log(`Fetching historical close price for: ${ticker} on ${dateToUse}`);
 
   try {
     const polygonRes = await axios.get(
@@ -84,7 +80,7 @@ app.get('/api/current-price', async (req, res) => {
     const price = polygonRes.data?.close;
     if (price === undefined) throw new Error('No close price available');
 
-    console.log(`✅ Historical close price for ${ticker} on ${dateToUse}: $${price}`);
+    console.log(`Historical close price for ${ticker} on ${dateToUse}: $${price}`);
 
     res.json({
       ticker,
@@ -98,24 +94,20 @@ app.get('/api/current-price', async (req, res) => {
   }
 });
 
-// Chat agent route 🚀
-app.post('/api/chat-agent', async (req, res) => {
+app.post("/api/chat-agent", async (req, res) => {
   const { user_id, message } = req.body;
-  if (!user_id || !message) {
-    return res.status(400).json({ error: 'user_id and message are required' });
-  }
+  if (!user_id || !message) return res.status(400).json({ error: "Missing fields" });
 
   try {
-    console.log(`Running agent for user: ${user_id}, message: "${message}"`);
-
     const reply = await runPortfolioAgent(user_id, message);
-
     res.json({ reply });
   } catch (err) {
-    console.error('Agent error:', err);
-    res.status(500).json({ error: 'Agent failed to respond' });
+    console.error("Agent error:", err);
+    res.status(500).json({ error: "Agent failed to respond" });
   }
 });
+
+
 
 const PORT = process.env.PORT || 5001;
 console.log('Starting server...');

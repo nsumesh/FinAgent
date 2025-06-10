@@ -1,215 +1,137 @@
-require('dotenv').config();
-const { createClient } = require('@supabase/supabase-js');
-const { ChatOpenAI } = require('@langchain/openai');
-const { PromptTemplate } = require('@langchain/core/prompts');
-const { RunnableSequence } = require('@langchain/core/runnables');
-const { computeProfitLoss } = require('./math');
+require("dotenv").config({ path: '../.env' });
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const { ChatOpenAI } = require("@langchain/openai");
+const { initializeAgentExecutorWithOptions } = require("langchain/agents");
 
-// 🔸 Load portfolio once for all functions
-async function loadPortfolio(user_id) {
-  const { data: stocks, error } = await supabase
-    .from('portfolios')
-    .select('*')
-    .eq('user_id', user_id);
+const { loadPortfolioTool } = require("./tools/loadPortfolioTool");
+const { computeProfitLossTool } = require("./tools/computeProfitLossTool");
+const { fetchStockInfoTool } = require("./tools/fetchStockInfoTool");
+const { getMarketSummaryTool } = require("./tools/getMarketSummaryTool");
+const { analyzePortfolioDiversificationTool } = require("./tools/analyzePortfolioDiversificationTool");
 
-  if (error) throw new Error('Failed to load portfolio');
-  return stocks;
-}
 
-async function generatePortfolioInsights(user_id) {
-  const stocks = await loadPortfolio(user_id);
-
-  const stockSummaries = stocks.map((stock) => {
-    const pl = computeProfitLoss(stock.value, stock.current_price, stock.quantity);
-    const safePL = isNaN(pl) ? 0 : pl;
-    return `${stock.company_name} (${stock.ticker}) — Bought at $${stock.value}, Quantity ${stock.quantity}, Current Price $${stock.current_price} → Profit/Loss: ${safePL >= 0 ? '+' : ''}$${safePL.toFixed(2)}`;
+async function runPortfolioAgent(user_id, userMessage) {
+  const model = new ChatOpenAI({
+    modelName: "gpt-4o",
+    temperature: 0,
   });
 
-  const totalPL = stocks.reduce((acc, stock) => {
-    const pl = computeProfitLoss(stock.value, stock.current_price, stock.quantity);
-    return acc + (isNaN(pl) ? 0 : pl);
-  }, 0);
-
-  const prompt = new PromptTemplate({
-    template: `
-You are a professional financial portfolio assistant.
-You DO NOT say "as an AI." Speak naturally.
-
-Analyze the following user stock portfolio:
-
-{stock_summaries}
-
-Overall profit/loss: ${totalPL >= 0 ? '+' : ''}${totalPL.toFixed(2)} USD.
-
-For each stock:
-- Go in detail about the performance.
-- Recommend whether to hold / sell / buy more.
-
-Then:
-- Give 2-3 insights about the overall portfolio.
-- Suggest 2-3 actions the user could take, such as suggesting buying different stocks, suggest those stocks as well.
-- Base your recommendations off current news and quarterly performance.
-- Keep your advice limited to only stocks right now.
-- Talk about current market trends as well, and if suggesting sectors, suggest the companies in those sectors too.
-    `,
-    inputVariables: ['stock_summaries'],
-  });
-
-  const llm = new ChatOpenAI({
-    temperature: 0.3,
-    modelName: 'gpt-4',
-  });
-
-  const chain = RunnableSequence.from([prompt, llm]);
-
-  const response = await chain.invoke({
-    stock_summaries: stockSummaries.join('\n'),
-  });
-
-  return response.content;
-}
-
-async function generatePortfolioValueSummary(user_id) {
-  const stocks = await loadPortfolio(user_id);
-
-  const totalValue = stocks.reduce((acc, stock) => {
-    return acc + stock.current_price * stock.quantity;
-  }, 0);
-
-  return `Your total portfolio value is approximately $${totalValue.toFixed(2)} USD.`;
-}
-
-async function generateStockSuggestions(user_id) {
-  const prompt = new PromptTemplate({
-    template: `
-You are a professional stock advisor.
-Suggest 2-3 stocks that the user could consider buying today.
-Explain why for each, based on current trends and performance.
-
-Output in plain text.
-    `,
-    inputVariables: [],
-  });
-
-  const llm = new ChatOpenAI({
-    temperature: 0.4,
-    modelName: 'gpt-4',
-  });
-
-  const chain = RunnableSequence.from([prompt, llm]);
-
-  const response = await chain.invoke({});
-
-  return response.content;
-}
-
-async function generateDiversificationAdvice(user_id) {
-  const prompt = new PromptTemplate({
-    template: `
-You are a financial portfolio advisor.
-The user is asking about diversification.
-
-Suggest 2-3 sectors to consider adding to their portfolio.
-For each sector, give 1-2 example stocks.
-
-Explain your reasoning.
-    `,
-    inputVariables: [],
-  });
-
-  const llm = new ChatOpenAI({
-    temperature: 0.4,
-    modelName: 'gpt-4',
-  });
-
-  const chain = RunnableSequence.from([prompt, llm]);
-
-  const response = await chain.invoke({});
-
-  return response.content;
-}
-
-async function generateMarketTrendsSummary(user_id) {
-  const prompt = new PromptTemplate({
-    template: `
-You are a market analyst.
-Summarize the current stock market trends (US markets).
-
-Include:
-- 2-3 key trends (macro / sectoral)
-- Notable news affecting markets
-- Advice to retail investors right now
-- In your response, don't say you're an Open AI model, just give a general outline
-Output in plain text.
-    `,
-    inputVariables: [],
-  });
-
-  const llm = new ChatOpenAI({
-    temperature: 0.4,
-    modelName: 'gpt-4',
-  });
-
-  const chain = RunnableSequence.from([prompt, llm]);
-
-  const response = await chain.invoke({});
-
-  return response.content;
-}
-
-async function runPortfolioAgent(user_id, message) {
-  console.log(`⚙️ runPortfolioAgent: "${message}"`);
-
-  const lowerMessage = message.toLowerCase();
-
-  const intentMap = [
-    {
-      keywords: ['recommend', 'suggest', 'buy'],
-      handler: generateStockSuggestions,
-    },
-    {
-      keywords: ['diversify', 'diversification'],
-      handler: generateDiversificationAdvice,
-    },
-    {
-      keywords: [
-        'total value',
-        'portfolio worth',
-        'total portfolio value',
-        'portfolio value',
-        'how much is my portfolio',
-        'portfolio valuation',
-      ],
-      handler: generatePortfolioValueSummary,
-    },
-    {
-      keywords: ['market trends', 'market doing', 'current market'],
-      handler: generateMarketTrendsSummary,
-    },
+  const tools = [
+    loadPortfolioTool,
+    computeProfitLossTool,
+    fetchStockInfoTool,
+    getMarketSummaryTool,
+    analyzePortfolioDiversificationTool,
   ];
 
-  for (const intent of intentMap) {
-    if (intent.keywords.some(keyword => lowerMessage.includes(keyword))) {
-      console.log(`Running handler for intent: ${intent.handler.name} (matched keywords: ${intent.keywords.join(', ')})`);
-      return await intent.handler(user_id);
-    }
-  }
+  const executor = await initializeAgentExecutorWithOptions(tools, model, {
+    agentType: "openai-functions",
+    verbose: true,
+    agentArgs: {
+      systemMessage: `
+You are a financial portfolio assistant.
 
-  console.log('No intent match → running generatePortfolioInsights...');
-  return await generatePortfolioInsights(user_id);
+Context:
+- The user's Supabase user_id is: "${user_id}".
+
+Behavior:
+
+- If the user asks to "load", "show", "display", or "summarize" their portfolio or holdings → use ONLY loadPortfolioTool. Return the list of holdings in a readable format. DO NOT call computeProfitLossTool unless explicitly asked.
+
+- When using loadPortfolioTool, ALWAYS pass \`user_id="${user_id}"\` as argument. Do NOT ask the user for user_id.
+
+- If the user asks explicitly about profit, gain, loss, return, or uses phrases such as:
+    - "What is my total profit"
+    - "How much did I make"
+    - "How much did I lose"
+    - "What is my return"
+    - "Compute my profit or loss"
+    → THEN IMMEDIATELY call computeProfitLossTool. Do not ask for confirmation.
+
+- If the user asks vague phrases like "How am I doing", "Show my performance", "Show my results", "Am I making money", first load the portfolio, then ask user if they want to compute profit/loss.
+
+- If the user asks about a specific stock ticker (e.g. "Tell me about AAPL", "What is the price of TSLA", "Give me info about MSFT"), you must use fetchStockInfoTool FIRST. Do not call loadPortfolioTool for this query. Only use fetchStockInfoTool.
+
+- If the user message mentions both portfolio and specific stock (example: "Show me my portfolio and tell me about AAPL"), prioritize calling loadPortfolioTool first, then fetchStockInfoTool after.
+
+- If the user asks for "recommend stocks", "what stocks should I add", "suggest stocks", "help me diversify", "give me good stocks to invest in", or similar:
+    - First call loadPortfolioTool to retrieve the user's current holdings.
+    - DO NOT suggest stocks already present in the user's portfolio.
+    - After loading the portfolio, recommend 3-5 stocks based on your general knowledge of sectors and companies.
+    - The recommendations should aim for diversification — suggest stocks from sectors the user is not heavily invested in.
+    - DO NOT call any other tools after loadPortfolioTool (such as fetchStockInfoTool or computeProfitLossTool).
+    - Example format of response:
+        - AAPL (Technology)
+        - JNJ (Healthcare)
+        - XOM (Energy)
+        - V (Financial Services)
+        - COST (Consumer Staples)
+    - Clearly label which sector each suggested stock belongs to.
+    - You do NOT need to provide current prices or market performance.
+    - Be helpful and thoughtful in your recommendation rationale — mention that you're recommending based on the user's existing portfolio and sectors not yet covered.
+- If the user asks about a daily market summary with phrases like "What's today's market summary', call getMarketSummaryTool and summarize the output received in 3-4 sentences
+- If the user asks to "recommend stocks under $X", "suggest stocks within budget", "give me good stocks below $X", "recommend cheap stocks", etc.:
+
+    → First call loadPortfolioTool to retrieve user's current holdings.
+
+    → Then call getMarketSummaryTool to get today's market prices.
+
+    → Filter the results to:
+        - Only stocks where close_price ≤ budget
+        - Stocks that the user does NOT already own.
+
+    → Recommend 3-5 such stocks, with ticker and price, e.g.:
+
+        - KO ($62.13) - Consumer Staples
+        - WFC ($44.10) - Financials
+        - XOM ($99.45) - Energy
+
+    → Clearly state these were selected under the budget provided.
+
+    → DO NOT call fetchStockInfoTool for these — use prices from getMarketSummaryTool.
+
+    → If no suitable stocks are found, politely inform the user.
+  
+If the user asks "Am I diversified?", "Should I diversify?", "How can I diversify?", or similar:
+
+    → Call analyzePortfolioDiversificationTool.
+
+    → After receiving sector_breakdown:
+
+        → Explain the sector breakdown clearly.
+
+        → Identify sectors that have 0 stocks or are underweight.
+
+        → Recommend 3–5 well-known stocks from sectors that are underweight or missing.
+
+            - Example format:
+                - JNJ (Healthcare)
+                - JPM (Financial Services)
+                - XOM (Energy)
+                - COST (Consumer Staples)
+                - UNP (Industrials)
+
+            - You do NOT need to fetch current prices.
+            - You do NOT need to call other tools (use general market knowledge).
+
+        → Explain that these are example suggestions to help improve diversification.
+
+        → Be helpful and concrete in your response — give specific tickers so user can act on the advice.
+
+Summary: Be precise in using tools based on intent. Do not mix tool calls unnecessarily.
+      `,
+    },
+  });
+
+  console.log("Agent initialized. Running...");
+
+  const response = await executor.invoke({
+    input: `My user_id is ${user_id}. ${userMessage}`,
+  });
+
+  console.log("Agent response:", response);
+
+  return response.output;
 }
 
-// Export all:
-module.exports = {
-  runPortfolioAgent,
-  generatePortfolioInsights,
-  generatePortfolioValueSummary,
-  generateStockSuggestions,
-  generateDiversificationAdvice,
-  generateMarketTrendsSummary,
-};
+module.exports = { runPortfolioAgent };
