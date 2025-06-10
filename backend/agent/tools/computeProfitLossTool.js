@@ -9,7 +9,7 @@ const computeProfitLossTool = new DynamicStructuredTool({
   }),
   func: async ({ portfolio }) => {
     try {
-      const portfolioArray = JSON.parse(portfolio); // ✅ FIX — parse it first!
+      const portfolioArray = JSON.parse(portfolio); 
       let totalProfitLoss = 0;
 
       portfolioArray.forEach((stock) => {
