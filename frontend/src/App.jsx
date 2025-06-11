@@ -4,10 +4,12 @@ import PortfolioCarousel from './components/PortfolioCarousel';
 import Auth from './pages/Auth';
 import './App.css';
 import FinAgentChat from './components/FinAgentChat';  
+import { FaComments, FaTimes } from 'react-icons/fa';
 
 function App() {
   const [user, setUser] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false); // Chat toggle
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
@@ -31,9 +33,7 @@ function App() {
 
   return (
     <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
-      {}
-   
-
+      {/* Main content */}
       <div
         style={{
           flex: 1,
@@ -42,18 +42,43 @@ function App() {
           flexDirection: 'column',
           width: '100%',
           transition: 'margin-left 0.3s ease-in-out',
-          marginLeft: isSidebarOpen ? '200px' : '0px',
         }}
       >
         <div style={{ flex: 1, width: '100%' }}>
-          <div style={{ width: '100%', height: '100%' }}>
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
             <PortfolioCarousel user={user} />
           </div>
         </div>
       </div>
 
       
-      {user && <FinAgentChat user={user} />}
+      <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
+        {isChatOpen ? (
+          <div style={{ position: 'relative' }}>
+            <button
+              className='floating-close-button'
+              onClick={() => setIsChatOpen(false)}
+            >
+              <FaTimes />
+            </button>
+            <FinAgentChat user={user} />
+          </div>
+        ) : (
+          <button
+            className='floating-chat-button'
+            onClick={() => setIsChatOpen(true)}
+          >
+            <FaComments size={28} />
+          </button>
+        )}
+      </div>
     </div>
   );
 }
