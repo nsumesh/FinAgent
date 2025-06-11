@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
-import { supabase } from './lib/supabaseClient'; // or your supabaseClient path
+import { supabase } from './lib/supabaseClient'; 
 import App from './App';
-import React from 'react';
+import React from 'react'
 import ReactDOM from 'react-dom/client';
 
 ReactDOM.createRoot(document.getElementById('root')).render(

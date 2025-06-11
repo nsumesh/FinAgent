@@ -1,13 +1,17 @@
 /* PortfolioCarousel.module.css */
 
 .wrapper {
-    padding: 2rem;
-    background-color: #f9fafb;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    max-width: 1000px;
-    margin: 0 auto;
-  }
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.15); 
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(12px);         
+  -webkit-backdrop-filter: blur(12px);    
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
   
   .headerRow {
     display: flex;
@@ -19,7 +23,7 @@
   .title {
     font-size: 1.8rem;
     font-weight: bold;
-    color: #1f2937;
+    color: #0c0c0c;
   }
   
   .addButton {
@@ -44,15 +48,7 @@
     padding-bottom: 1rem;
   }
   
-  .rightArrow {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 2rem;
-    color: #9ca3af;
-  }
-  
+   
   .modalOverlay {
     position: fixed;
     inset: 0;
@@ -101,5 +97,38 @@
   .modalButtons button:first-child {
     background-color: #e5e7eb;
     color: #374151;
+  }
+  .scrollContainer {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    scroll-snap-type: x mandatory; /* Optional: makes scrolling nicer */
+  }
+  
+  .scrollContainer::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .scrollContainer::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+  }
+  
+  .scrollContainer > * {
+    flex: 0 0 calc(25% - 1rem); 
+    scroll-snap-align: start;   
+  }
+  .totalHoldingsBar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    color: #1f2937;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 0.5rem;
+    position: relative;
+    z-index: 1;
   }
   

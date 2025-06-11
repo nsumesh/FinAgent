@@ -1,28 +1,43 @@
 // PortfolioCard.jsx
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import styles from './PortfolioCard.module.css';
 
-export default function PortfolioCard({ company_name, ticker, value, quantity, bought_at, onDelete }) {
+export default function PortfolioCard({ company_name, ticker, value, quantity, bought_at, onDelete, currentPrice}) {
+
+  let priceClass = '';
+  if (currentPrice !== null) {
+    if (currentPrice > value) {
+      priceClass = styles.greenText;
+    } else if (currentPrice < value) {
+      priceClass = styles.redText;
+    }
+  }
+
   return (
     <div className={styles.card}>
-      <div className={styles.header}>
-        <div className={styles.companyName}>{company_name}</div>
-        <div className={styles.ticker}>{ticker}</div>
-      </div>
+      <h3 className={styles.companyName}>{company_name}</h3>
+      <p className={styles.ticker}>{ticker}</p>
 
-      <div className={styles.detail}>
-        <strong>Quantity:</strong> {quantity}
-      </div>
+      <p><strong>Quantity:</strong> {quantity}</p>
+      <p><strong>Price bought at:</strong> ${value}</p>
+      <p><strong>Date bought on:</strong> {new Date(bought_at).toLocaleDateString()}</p>
 
-      <div className={styles.detail}>
-        <span>Price bought at:</span> $ {value}
-      </div>
+      {currentPrice !== null && (
+        <p>
+        <strong>Current price:</strong>{' '}
+        {currentPrice !== null && (
+          <span className={currentPrice > value ? styles.greenText : styles.redText}>
+            ${currentPrice.toFixed(2)}
+          </span>
+        )}
+      </p>      
+       )}
 
-      <div className={styles.detail}>
-        <span>Date bought on:</span> {new Date(bought_at).toLocaleDateString()}
-      </div>
-
-      <button className={styles.deleteButton} onClick={onDelete}>Delete</button>
+      <button className={styles.deleteButton} onClick={onDelete}>
+        Delete
+      </button>
     </div>
   );
 }
+
+
