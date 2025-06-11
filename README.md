@@ -79,6 +79,24 @@ npm run dev
 ---
 
 ## Supabase Setup
+Create a Supabase Project
+Create the following tables : portfolios and chat_history
+
+Schema of Portfolios :
+
+| Column        | Type       | Description                            |
+|---------------|------------|----------------------------------------|
+| id            | uuid       | Primary Key (auto-generated)           |
+| user_id       | uuid       | Foreign key referencing auth.users.id  |
+| company_name  | text       | Full name of the company               |
+| ticker        | text       | Stock ticker symbol (e.g. AAPL)        |
+| bought_at     | timestampz | Date when the stock was purchased      |
+| value         | numeric    | Price bought at per share              |
+| created_at    | timestampz | Timestamp when this record was created |
+| quantity      | numeric    | Number of shares purchased             |
+| current_price | numeric    | Current market price of the stock      |
+
+
 
 
 
