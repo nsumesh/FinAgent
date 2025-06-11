@@ -22,7 +22,8 @@ It integrates an LLM agent with portfolio tools, chat history, and a clean React
 - **Frontend:** React + CSS Modules
 - **Backend:** Node.js + Express + LangChain Agent
 - **Database:** Supabase (Postgres + Auth + Storage)
-- **LLM:** OpenAI GPT-4o via LangChain  
+- **LLM:** OpenAI GPT-4o via LangChain
+- **External Data:** Using Polygon's stock API to obtain real time stock data
 
 ---
 
@@ -57,3 +58,64 @@ It integrates an LLM agent with portfolio tools, chat history, and a clean React
 /supabase
   ├── chat_history table (user_id, role, content, created_at)
   ├── portfolio table
+```
+
+---
+
+## Dependenicies to Install and Run
+
+Backend : Navigate to the backend directory, will run on port 5001
+```plaintext
+cd backend
+npm install
+node index.js
+```
+Frontend : Navigate to the frontend directory, will run on port 5173
+```plaintext
+cd frontend
+npm install
+npm run dev
+```
+---
+
+## Supabase Setup
+Create a Supabase Project
+Create the following tables : portfolios and chat_history
+Add the supabase URL to the .env file created in the backend 
+Schema of portfolios :
+
+| Column        | Type       | Description                            |
+|---------------|------------|----------------------------------------|
+| id            | uuid       | Primary Key (auto-generated)           |
+| user_id       | uuid       | Foreign key referencing auth.users.id  |
+| company_name  | text       | Full name of the company               |
+| ticker        | text       | Stock ticker symbol (e.g. AAPL)        |
+| bought_at     | timestampz | Date when the stock was purchased      |
+| value         | numeric    | Price bought at per share              |
+| created_at    | timestampz | Timestamp when this record was created |
+| quantity      | numeric    | Number of shares purchased             |
+| current_price | numeric    | Current market price of the stock      |
+
+
+Schema of chat_history : 
+
+| Column        | Type       | Description                            |
+|---------------|------------|----------------------------------------|
+| id            | uuid       | Primary Key (auto-generated)           |
+| user_id       | uuid       | Foreign key referencing auth.users.id  |
+| message_index | int4       | Message index in order                 |
+| role          | text       | User or assistant                      |
+| content       | text       | Content of the message                 |
+| created_at    | timestampz | Timestamp when this record was created |
+
+---
+
+## OpenAI key
+
+- Go the OpenAI developers platform, obtain a key and post it on the .env file as well
+  
+___
+
+## Polygon Key
+
+- Sign up for the starter Polygon stock API plan, obtain an API key and post it on the .env file
