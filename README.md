@@ -82,7 +82,7 @@ npm run dev
 Create a Supabase Project
 Create the following tables : portfolios and chat_history
 
-Schema of Portfolios :
+Schema of portfolios :
 
 | Column        | Type       | Description                            |
 |---------------|------------|----------------------------------------|
@@ -97,6 +97,14 @@ Schema of Portfolios :
 | current_price | numeric    | Current market price of the stock      |
 
 
+Schema of chat_history : 
 
-
+| Column        | Type       | Description                            |
+|---------------|------------|----------------------------------------|
+| id            | uuid       | Primary Key (auto-generated)           |
+| user_id       | uuid       | Foreign key referencing auth.users.id  |
+| message_index | int4       | Message index in order                 |
+| role          | text       | User or assistant                      |
+| content       | text       | Content of the message                 |
+| created_at    | timestampz | Timestamp when this record was created |
 
