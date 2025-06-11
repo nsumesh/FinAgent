@@ -50,7 +50,7 @@ function App() {
     zIndex: 1000,
   }}
 >
-  <h1 style={{ color: 'white', margin: 0, fontSize: '1.5rem' }}>FinAgent Portfolio</h1>
+  <h1 style={{ color: 'white', margin: 0, fontSize: '1.5rem' }}>Your Portfolio</h1>
   <button
     onClick={handleLogout}
     style={{
