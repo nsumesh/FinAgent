@@ -27,10 +27,6 @@ export default function PortfolioCarousel() {
       } else {
         setStocks(data);
       }
-      // const total = computeTotalValue(data);
-      // const plPerStock = computePortfolioPL(data);
-      // console.log('Total Value:', total);
-      // console.log('Portfolio P/L:', plPerStock);
       const el = containerRef.current;
       setShowArrow(el && el.scrollWidth > el.clientWidth);
     };
@@ -43,7 +39,6 @@ export default function PortfolioCarousel() {
     if (!user) return;
   
     try {
-      // Fetch current price
       const priceRes = await fetch(`http://localhost:5001/api/current-price?ticker=${stock.ticker}`);
       const priceData = await priceRes.json();
       const current_price = priceData?.current_price || 0;
@@ -53,7 +48,7 @@ export default function PortfolioCarousel() {
       const payload = {
         ...stock,
         user_id: user.id,
-        current_price, // insert it!
+        current_price, 
       };
   
       const { data, error } = await supabase
@@ -62,16 +57,16 @@ export default function PortfolioCarousel() {
         .select();
   
       if (error) {
-        console.error("❌ Supabase insert error:", error);
+        console.error("Supabase insert error:", error);
         alert('Error adding stock: ' + error.message);
         return;
       }
   
-      console.log("✅ Stock added to Supabase:", data);
+      console.log("Stock added to Supabase:", data);
       setStocks((prev) => [...prev, ...data]);
       setShowModal(false);
     } catch (err) {
-      console.error("🔥 Unexpected exception during insert:", err);
+      console.error("Unexpected exception during insert:", err);
       alert("Unexpected error occurred: " + err.message);
     }
   };
@@ -102,7 +97,7 @@ export default function PortfolioCarousel() {
           <PortfolioCard
             key={stock.id}
             {...stock}
-            currentPrice={stock.current_price} // use current_price from DB
+            currentPrice={stock.current_price} 
             onDelete={() => handleDeleteStock(stock.id)}
           />
         ))}

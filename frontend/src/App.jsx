@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabaseClient';
-import Sidebar from './components/Sidebar';
 import PortfolioCarousel from './components/PortfolioCarousel';
 import Auth from './pages/Auth';
-import { FaBars } from 'react-icons/fa';
 import './App.css';
 import FinAgentChat from './components/FinAgentChat';  
 
@@ -33,15 +31,8 @@ function App() {
 
   return (
     <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
-      <Sidebar isSidebarOpen={isSidebarOpen} />
-
       {}
-      <button
-        className="floatingSidebarButton"
-        onClick={toggleSidebar}
-      >
-        <FaBars />
-      </button>
+   
 
       <div
         style={{
@@ -61,7 +52,7 @@ function App() {
         </div>
       </div>
 
-      {}
+      
       {user && <FinAgentChat user={user} />}
     </div>
   );

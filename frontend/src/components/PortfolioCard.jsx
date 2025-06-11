@@ -24,12 +24,14 @@ export default function PortfolioCard({ company_name, ticker, value, quantity, b
 
       {currentPrice !== null && (
         <p>
-          <strong>Current price:</strong>{' '}
-          <span style={{ color: currentPrice > value ? 'green' : 'red' }}>
+        <strong>Current price:</strong>{' '}
+        {currentPrice !== null && (
+          <span className={currentPrice > value ? styles.greenText : styles.redText}>
             ${currentPrice.toFixed(2)}
           </span>
-        </p>
-      )}
+        )}
+      </p>      
+       )}
 
       <button className={styles.deleteButton} onClick={onDelete}>
         Delete
