@@ -22,7 +22,8 @@ It integrates an LLM agent with portfolio tools, chat history, and a clean React
 - **Frontend:** React + CSS Modules
 - **Backend:** Node.js + Express + LangChain Agent
 - **Database:** Supabase (Postgres + Auth + Storage)
-- **LLM:** OpenAI GPT-4o via LangChain  
+- **LLM:** OpenAI GPT-4o via LangChain
+- **External Data:** Using Polygon's stock API to obtain real time stock data
 
 ---
 
@@ -63,12 +64,21 @@ It integrates an LLM agent with portfolio tools, chat history, and a clean React
 
 ## Dependenicies to Install and Run
 
-Backend : Navigate to the backend directory
+Backend : Navigate to the backend directory, will run on port 5001
 ```plaintext
+cd backend
 npm install
 node index.js
 ```
+Frontend : Navigate to the frontend directory, will run on port 5173
+```plaintext
+cd frontend
+npm install
+npm run dev
+```
+---
 
+## Supabase Setup
 
 
 
