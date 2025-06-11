@@ -81,7 +81,7 @@ npm run dev
 ## Supabase Setup
 Create a Supabase Project
 Create the following tables : portfolios and chat_history
-
+Add the supabase URL to the .env file created in the backend 
 Schema of portfolios :
 
 | Column        | Type       | Description                            |
@@ -108,3 +108,14 @@ Schema of chat_history :
 | content       | text       | Content of the message                 |
 | created_at    | timestampz | Timestamp when this record was created |
 
+---
+
+## OpenAI key
+
+- Go the OpenAI developers platform, obtain a key and post it on the .env file as well
+  
+___
+
+## Polygon Key
+
+- Sign up for the starter Polygon stock API plan, obtain an API key and post it on the .env file
