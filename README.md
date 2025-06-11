@@ -57,3 +57,15 @@ It integrates an LLM agent with portfolio tools, chat history, and a clean React
 /supabase
   ├── chat_history table (user_id, role, content, created_at)
   ├── portfolio table
+```
+##Dependenicies to Install and Run
+
+Backend : Navigate to the backend directory
+```plaintext
+npm install
+node index.js
+```
+
+
+
+
