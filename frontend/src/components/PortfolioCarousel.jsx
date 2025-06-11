@@ -103,8 +103,7 @@ export default function PortfolioCarousel() {
         ))}
       </div>
 
-      {showArrow && <div className={styles.rightArrow}>→</div>}
-
+ 
       {showModal && session?.user && (
         <AddStockModal
           onAdd={handleAddStock}
