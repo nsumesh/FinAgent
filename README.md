@@ -7,13 +7,13 @@ It integrates an LLM agent with portfolio tools, chat history, and a clean React
 
 ## Features
 
-Interactive chat assistant powered by LangChain + GPT-4o  
-Load your current portfolio and view stock data  
-Analyze portfolio diversification by sector  
-Get stock recommendations based on your portfolio  
-Chat history persisted in Supabase  
-User authentication (Supabase Auth)  
-Full CRUD on stock portfolio  
+-Interactive chat assistant powered by LangChain + GPT-4o  
+-Load your current portfolio and view stock data  
+-Analyze portfolio diversification by sector  
+-Get stock recommendations based on your portfolio  
+-Chat history persisted in Supabase  
+-User authentication (Supabase Auth)  
+-Full CRUD on stock portfolio  
 
 ---
 
